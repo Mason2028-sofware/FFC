@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 320px; padding: 15px; font-family: 'Segoe UI', Tahoma, Helvetica, Arial, sans-serif; background-color: #fcfcfc; color: #333; }
+    h2 { font-size: 1.1em; color: #232f3e; margin-top: 0; border-bottom: 2px solid #febd69; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    
+    button#clickMe { 
+      background: #febd69; border: 1px solid #a88734; padding: 12px; 
+      cursor: pointer; width: 100%; border-radius: 5px; font-weight: bold; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px;
+    }
+    button#clickMe:hover { background: #f3a847; }
+    
+    #display { 
+      margin-top: 10px; padding: 12px; border-radius: 8px; 
+      background: #ffffff; border: 1px solid #e0e0e0; font-size: 0.9em;
+    }
+
+    /* Breakdown Styles */
+    .breakdown-row { display: flex; justify-content: space-between; margin: 4px 0; color: #565959; }
+    .breakdown-total { 
+      display: flex; justify-content: space-between; margin-top: 10px; 
+      padding-top: 10px; border-top: 1px dashed #ccc; 
+      font-weight: bold; color: #B12704; font-size: 1.1em;
+    }
+
+    /* History Styles */
+    /* dont need but left for now just in case.
+    #history { margin-top: 20px; }
+    .history-header { font-weight: bold; font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+    
+    .history-item { 
+      font-size: 0.8em; border-bottom: 1px solid #eee; padding: 8px 0; 
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .history-name { color: #007185; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+    
+    .clear-btn { 
+      background: none; border: none; color: #007185; font-size: 0.7em; 
+      cursor: pointer; padding: 0; margin-top: 10px; text-decoration: underline;
+    }
+    */
+    .clear-btn:hover { color: #c45500; }
+  </style>
+</head>
+<body>
+  <h2>🛒 Purchase Tracker</h2>
+  
+  <button id="clickMe">Scan Amazon Checkout</button>
+  
+  <div id="display">
+    <p style="text-align:center; color:#999;">Ready to track your order.</p>
+  </div>
+
+  <script src="amazon_scrape.js"></script>
+</body>
+</html>
