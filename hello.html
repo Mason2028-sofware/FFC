@@ -1,5 +1,21 @@
+<!DOCTYPE html>
 <html>
-  <body>
-    <h1>Hello Extensions</h1>
-  </body>
+<head>
+  <style>
+    body { width: 300px; padding: 15px; font-family: sans-serif; }
+    button { background: #ff9900; border: none; padding: 10px; cursor: pointer; width: 100%; border-radius: 4px; font-weight: bold; }
+    #display { margin-top: 15px; font-size: 0.9em; border-top: 1px solid #ddd; padding-top: 10px; }
+    .label { font-weight: bold; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Purchase Tracker</h1>
+  <button id="clickMe">Track Current Item</button>
+  
+  <div id="display">
+    <p>Click the button to scrape the item details from this page.</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
 </html>
