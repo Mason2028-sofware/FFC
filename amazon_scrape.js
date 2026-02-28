@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /**
  * UI Helper: Refreshes the history list in the popup
  */
@@ -120,3 +121,21 @@ document.getElementById('clickMe').addEventListener('click', async () => {
         display.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
     }
 });
+=======
+export const amazonScraper = () => {
+    const nameEl = document.querySelector('.lineitem-title-text');
+    const itemName = nameEl ? nameEl.innerText.trim() : "Unknown Item";
+    const values = Array.from(document.querySelectorAll('.order-summary-line-definition'));
+    const prices = values.map(v => v.innerText.replace(/\s\s+/g, ' ').trim());
+
+    if (prices.length > 0) {
+        return {
+            name: itemName,
+            itemPrice: prices[0] || "N/A",
+            shipping: prices[1] || "N/A",
+            grandTotal: prices[prices.length - 1] || "N/A"
+        };
+    }
+    return null;
+};
+>>>>>>> Stashed changes
