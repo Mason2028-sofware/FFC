@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 320px; padding: 15px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fcfcfc; }
+    h2 { font-size: 1.1em; color: #232f3e; margin-top: 0; border-bottom: 2px solid #febd69; padding-bottom: 5px; }
+    
+    button { 
+      background: #febd69; border: 1px solid #a88734; padding: 12px; 
+      cursor: pointer; width: 100%; border-radius: 4px; font-weight: bold; 
+      transition: background 0.2s;
+    }
+    button:hover { background: #f3a847; }
+    
+    #display { 
+      margin-top: 15px; padding: 12px; border-radius: 6px; 
+      background: #ffffff; border: 1px solid #ddd; font-size: 0.9em;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .price-badge { color: #B12704; font-weight: bold; font-size: 1.1em; }
+    .total-label { color: #565959; font-size: 0.85em; text-transform: uppercase; }
+
+    #history { margin-top: 20px; }
+    .history-header { font-weight: bold; font-size: 0.85em; color: #565959; margin-bottom: 8px; display: block; }
+    
+    .history-item { 
+      font-size: 0.8em; border-bottom: 1px solid #eee; padding: 8px 0; 
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .history-name { color: #007185; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  </style>
+</head>
+<body>
+  <h2>📦 Purchase Tracker</h2>
+  
+  <button id="clickMe">Scan Checkout Page</button>
+  
+  <div id="display">
+    <p style="color: #888;">Open your Amazon checkout and click scan to begin.</p>
+  </div>
+
+  <div id="history">
+    <span class="history-header">RECENT PURCHASES</span>
+    <div id="historyList"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
