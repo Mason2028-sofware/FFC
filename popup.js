@@ -1,51 +1,4 @@
-import { SITE_CONFIGS } from './websites.js';
-import { universalScraper } from './scraper.js';
-
-// ── Insult Engine ──────────────────────────────────────────────────────────────
-
-async function askGemini(payload) {
-  try {
-    const response = await fetch("http://localhost:3000/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      throw new Error("Backend error");
-    }
-
-    const data = await response.json();
-    return data.reply;
-
-  } catch (err) {
-    console.error("Gemini error:", err);
-    return "The shame engine is offline. Consider that a blessing.";
-  }
-}
-
-
-
-// ── Core Dashboard Logic ──────────────────────────────────────────────────────
-
-const refreshPermanentBudget = () => {
-  chrome.storage.local.get(['budget'], (data) => {
-    const display = document.getElementById('permanent-budget-display');
-    if (!display) return;
-
-    const currentBalance = parseFloat(data.budget) || 0;
-    display.innerText = `$${currentBalance.toFixed(2)}`;
-
-    // Dynamic Color Coding
-    if (currentBalance <= 0) {
-      display.style.color = "#e53e3e"; // Red
-    } else if (currentBalance < 50) {
-      display.style.color = "#dd6b20"; // Orange
-    } else {
-      display.style.color = "#38a169"; // Green
-    }
-  });
-};
+// popup.js — settings only, no scanning or insults
 
 const saveSettings = () => {
   const budget     = document.getElementById('budget').value;
@@ -53,9 +6,11 @@ const saveSettings = () => {
   const percentage = document.getElementById('percentage').value;
   const intensity  = document.querySelector('input[name="intensity"]:checked')?.value || 'normal';
   const categories = Array.from(document.querySelectorAll('.category-box input:checked')).map(el => el.value);
-  
+
   chrome.storage.local.set({ budget, timeframe, percentage, intensity, categories }, () => {
-    refreshPermanentBudget(); // Update the big number immediately
+    const indicator = document.getElementById('save-indicator');
+    indicator.classList.add('visible');
+    setTimeout(() => indicator.classList.remove('visible'), 1500);
   });
 };
 
@@ -74,54 +29,8 @@ const loadSettings = () => {
         if (cb) cb.checked = true;
       });
     }
-    refreshPermanentBudget();
   });
 };
-
-// ── Collapsible Settings ───────────────────────────────────────────────────────
-
-const initSettingsPanel = () => {
-  const toggle  = document.getElementById('settingsToggle');
-  const content = document.getElementById('settingsContent');
-  const chevron = document.getElementById('settingsChevron');
-
-  // Open on first run (no saved settings), collapsed otherwise
-  chrome.storage.local.get(['hasVisited'], (data) => {
-    const isFirstRun = !data.hasVisited;
-    if (isFirstRun) {
-      content.classList.add('open');
-      chevron.textContent = '▲';
-      chrome.storage.local.set({ hasVisited: true });
-    } else {
-      content.classList.remove('open');
-      chevron.textContent = '▼';
-    }
-  });
-
-  toggle.addEventListener('click', () => {
-    const isOpen = content.classList.toggle('open');
-    chevron.textContent = isOpen ? '▲' : '▼';
-  });
-};
-const updateHistoryUI = () => {
-  chrome.storage.local.get({ history: [] }, (data) => {
-    const list = document.getElementById('historyList');
-    if (!list) return;
-    list.innerHTML = data.history.length
-      ? '<div style="font-size:0.75em;font-weight:bold;color:#888;margin:12px 0 4px;text-align:center;">RECENT PURCHASES</div>'
-      : '<p style="font-size:0.8em; color:#888; text-align:center;">No purchase history yet.</p>';
-
-    [...data.history].reverse().slice(0, 3).forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.style = "display:flex; justify-content:space-between; font-size:0.8em; padding:4px 0; border-bottom:1px solid #eee;";
-      div.innerHTML = `<span>${item.date || 'Order'}</span> <b>$${item.total.toFixed(2)}</b>`;
-      list.appendChild(div);
-    });
-  });
-};
-
-// ── Init ───────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
