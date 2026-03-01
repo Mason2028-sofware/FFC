@@ -17,6 +17,24 @@ export const universalScraper = (configs) => {
     const containers = Array.from(document.querySelectorAll(site.itemContainer));
     console.log(containers);
 
+    const checkoutBtn = document.querySelector('[data-testid="SPC_selectPlaceOrder"]');
+
+    if (checkoutBtn && !checkoutBtn.dataset.listener) {
+        checkoutBtn.dataset.listener = "true";
+        checkoutBtn.addEventListener('click', () => {
+            const total = foundItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
+            
+            chrome.runtime.sendMessage({
+                type: 'PURCHASE_COMPLETED',
+                data: { 
+                    total: total, 
+                    site: 'Amazon',
+                    timestamp: Date.now() 
+                }
+            });
+        });
+    }
+
     const foundItems = containers.map(container => {
         const nameEl = container.querySelector(site.name);
         const priceEl = container.querySelector(site.prices);
