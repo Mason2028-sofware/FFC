@@ -1,6 +1,7 @@
 export const universalScraper = (configs) => {
     const host = window.location.hostname;
-    const site = host.includes('amazon') ? configs.amazon : (host.includes('nike') ? configs.nike : null);
+
+    const site = host.includes('amazon') ? configs.amazon : (host.includes('nike') ? configs.nike : (host.includes('walmart') ? configs.walmart : (host.includes('bestbuy') ? configs.bestBuy : null)));
 
     if (!site) return { success: false };
 
@@ -28,7 +29,7 @@ export const universalScraper = (configs) => {
 
     return {
         success: foundItems.length > 0,
-        site: host.includes('nike') ? 'Nike' : 'Amazon',
+        site: host.includes('nike') ? 'Nike' : (host.includes('bestbuy') ? 'Best Buy' : 'Amazon'),
         items: foundItems
     };
 };
