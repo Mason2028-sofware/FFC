@@ -8,16 +8,19 @@ export const SITE_CONFIGS = {
     nike: {
         itemContainer: '[data-automation="cart-item"]',
         name: '[data-automation="cart-item-product-name"]',
-        prices: '.formatted-price'
+        prices: '.formatted-price',
+        checkout: '[data-automation="member-checkout-button"]'
     },
     ebay: {
         itemContainer: '.evo-item-detail',
         name: 'a[data-test-id="cart-item-link"]',
-        prices: '.price-details'
+        prices: '.price-details',
+        checkout: 'button[data-test-id="cta-top"]'
     },
     bestBuy: {
         itemContainer: '.card',
         name: '.cart-item__title',
-        prices: '.price-block'
+        prices: '.price-block',
+        checkout: 'button[data-track="Checkout - Top"]'
     }
 };

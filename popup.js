@@ -162,6 +162,7 @@ document.getElementById('clickMe').addEventListener('click', async () => {
       const { items, site } = found.result;
       const total = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
       //const insult = budget > 0 ? generateInsult(total, budget, intensity) : null;
+      const remainingIfBought = budget - total;
 
       let insult = null;
 
