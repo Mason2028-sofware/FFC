@@ -2,34 +2,7 @@
 if (!window.__ffc_injected) {
   window.__ffc_injected = true;
 
-  // ── Insult Engine (duplicated here — content scripts can't import modules) ──
-
-  const INSULTS = {
-    'very-strict': {
-      safe:    ["You didn't buy anything. Impressive restraint. Or you're just broke.", "Zero spend. Are you okay? That's not normal."],
-      warning: ["Already at {pct}% of your budget? You have the willpower of a golden retriever in a butcher shop.", "{pct}% gone. Congrats, you're on pace to be broke.", "{pct}%? Your budget called. It's crying."],
-      danger:  ["You're at {pct}% of your budget. Your future self hates you.", "Sir/Ma'am, {pct}% of your budget is GONE. Do you need an intervention?", "{pct}%?! Your wallet filed for emotional damages."],
-      over:    ["You are {over} OVER budget. Absolutely unhinged behavior.", "Budget: defeated. You: chaos gremlin. Amount over: {over}.", "You blew past your budget by {over}. Your ancestors are disappointed."]
-    },
-    'strict': {
-      safe:    ["Under budget. Don't get used to it.", "You're safe... for now. We both know this won't last."],
-      warning: ["At {pct}% of budget. Slow down, champ.", "You've burned {pct}%. Your savings account just winced.", "{pct}% in — interesting choices you're making."],
-      danger:  ["Yikes. {pct}% of budget gone. Maybe log off?", "At {pct}%, you're one 'add to cart' away from disaster.", "At {pct}% you should probably close the browser."],
-      over:    ["Over budget by {over}. Bold strategy. How's that working out?", "You went {over} over. Outstanding in the worst possible way.", "Budget exceeded by {over}. I'm not mad, just disappointed. Actually I'm a little mad."]
-    },
-    'normal': {
-      safe:    ["You're under budget! Look at you, a responsible adult.", "Under budget. Treat yourself... to NOT spending more."],
-      warning: ["At {pct}% of your budget. Keep an eye on it.", "Sitting at {pct}%. Not bad, not great.", "{pct}% — you're walking the line."],
-      danger:  ["You're at {pct}% — getting a little spicy in here.", "Oof, {pct}%. Maybe put the card down for a sec?", "At {pct}%, you're walking a fine line, friend."],
-      over:    ["You went over by {over}. It happens. (It shouldn't, but it happens.)", "Over by {over}. Time to re-evaluate some life choices.", "Budget busted by {over}. We live and we learn. Mostly we just spend."]
-    },
-    'non-strict': {
-      safe:    ["Under budget! You're doing amazing sweetie.", "All good! Money is just points in a game anyway."],
-      warning: ["At {pct}% — totally fine, you deserve nice things.", "{pct}% spent. Honestly not that bad, keep living your life.", "Used {pct}%. Hey, YOLO right? (Please don't YOLO.)"],
-      danger:  ["Okay so {pct}% is a lot but... you only live once?", "At {pct}%? I mean... is it really that bad? (It kind of is.)", "{pct}%! But you know what, money comes and goes."],
-      over:    ["Over by {over} but honestly? Treat yourself. (Just kidding, please stop.)", "You went {over} over budget. But I believe in your ability to earn it back!", "Budget exceeded by {over}. At least you have good taste!"]
-    }
-  };
+  // ── Site configs ────────────────────────────────────────────────────────────
 
   const SITE_CONFIGS = {
     amazon: {
@@ -47,12 +20,14 @@ if (!window.__ffc_injected) {
       name: 'a[data-test-id="cart-item-link"]',
       prices: '.price-details'
     },
-    bestbuy: {
-      itemContainer: '.card',
-        name: '.cart-item__title',
-        prices: '.price-block'
+    bestBuy: {
+      itemContainer: '.cart-item',
+      name: '.sku-title a',
+      prices: '.priceView-customer-price span[aria-hidden="true"]'
     }
   };
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
 
   function parsePrice(str) {
     if (!str) return 0;
@@ -60,35 +35,25 @@ if (!window.__ffc_injected) {
     return match ? parseFloat(match[0]) : 0;
   }
 
-  function generateInsult(totalSpent, budget, intensity) {
-    const tier = INSULTS[intensity] || INSULTS['normal'];
-    const pct = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
-    const over = totalSpent - budget;
-    let pool;
-    if (totalSpent === 0) pool = tier.safe;
-    else if (pct >= 100)  pool = tier.over;
-    else if (pct >= 75)   pool = tier.danger;
-    else if (pct >= 40)   pool = tier.warning;
-    else                  pool = tier.safe;
-    const template = pool[Math.floor(Math.random() * pool.length)];
-    return template.replace('{pct}', pct).replace('{over}', '$' + over.toFixed(2));
-  }
-
   function scrapeCurrentPage() {
     const host = window.location.hostname;
-    let site;
-    if (host.includes('amazon'))  site = { config: SITE_CONFIGS.amazon,  label: 'Amazon' };
-    else if (host.includes('nike'))    site = { config: SITE_CONFIGS.nike,    label: 'Nike' };
-    else if (host.includes('ebay'))    site = { config: SITE_CONFIGS.ebay,    label: 'eBay' };
-    else if (host.includes('bestbuy')) site = { config: SITE_CONFIGS.bestbuy, label: 'Best Buy' };
+    let config, label;
+
+    if      (host.includes('amazon'))  { config = SITE_CONFIGS.amazon;  label = 'Amazon'; }
+    else if (host.includes('nike'))    { config = SITE_CONFIGS.nike;    label = 'Nike'; }
+    else if (host.includes('ebay'))    { config = SITE_CONFIGS.ebay;    label = 'eBay'; }
+    else if (host.includes('bestbuy')) { config = SITE_CONFIGS.bestBuy; label = 'Best Buy'; }
     else return null;
 
-    const containers = Array.from(document.querySelectorAll(site.config.itemContainer));
+    const containers = Array.from(document.querySelectorAll(config.itemContainer));
+    console.log('[FFC] Site:', label, '| Containers found:', containers.length);
+
     const items = containers.map(container => {
-      const nameEl  = container.querySelector(site.config.name);
-      const priceEl = container.querySelector(site.config.prices);
+      const nameEl  = container.querySelector(config.name);
+      const priceEl = container.querySelector(config.prices);
+      console.log('[FFC] name:', nameEl?.innerText?.trim(), '| price:', priceEl?.innerText?.trim());
       if (!priceEl) return null;
-      const rawName = nameEl ? nameEl.innerText : 'Unknown Product';
+      const rawName    = nameEl ? nameEl.innerText : 'Unknown Product';
       const priceMatch = priceEl.innerText.match(/\$\d+[\.,]\d{2}/);
       return {
         name:  rawName.trim().replace(/\s+/g, ' '),
@@ -96,12 +61,31 @@ if (!window.__ffc_injected) {
       };
     }).filter(Boolean);
 
-    return { label: site.label, items };
+    return { label, items };
   }
 
-  // ── Build & Inject Overlay ────────────────────────────────────────────────────
+  async function fetchInsult(total, budget, intensity, site) {
+    try {
+      const pct = budget > 0 ? Math.round((total / budget) * 100) : 0;
+      const response = await fetch('http://localhost:3000/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ total, budget, percentUsed: pct, intensity, site })
+      });
+      if (!response.ok) throw new Error('Server error');
+      const data = await response.json();
+      return data.reply;
+    } catch (err) {
+      console.error('[FFC] Gemini fetch failed:', err);
+      return 'The shame engine is offline. Consider that a blessing.';
+    }
+  }
+
+  // ── Styles ──────────────────────────────────────────────────────────────────
 
   const STYLES = `
+    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=DM+Sans:wght@400;500&display=swap');
+
     #ffc-fab {
       position: fixed;
       bottom: 24px;
@@ -133,7 +117,7 @@ if (!window.__ffc_injected) {
       bottom: 88px;
       right: 24px;
       z-index: 2147483646;
-      width: 280px;
+      width: 290px;
       background: #0f0f0f;
       border: 1px solid #2a2a2a;
       border-radius: 12px;
@@ -155,7 +139,7 @@ if (!window.__ffc_injected) {
       border-bottom: 1px solid #2a2a2a;
     }
     #ffc-panel-title {
-      font-family: monospace;
+      font-family: 'Space Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -180,7 +164,7 @@ if (!window.__ffc_injected) {
       color: #000;
       border: none;
       border-radius: 7px;
-      font-family: monospace;
+      font-family: 'Space Mono', monospace;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -190,6 +174,7 @@ if (!window.__ffc_injected) {
       transition: background 0.15s;
     }
     #ffc-scan-btn:hover { background: #cc4a10; }
+    #ffc-scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     #ffc-display { font-size: 12px; }
     .ffc-site-label {
       font-size: 10px;
@@ -208,58 +193,55 @@ if (!window.__ffc_injected) {
       font-size: 12px;
     }
     .ffc-cart-name { color: #888; flex: 1; line-height: 1.3; }
-    .ffc-cart-price { font-family: monospace; color: #ff6b2b; font-weight: 700; white-space: nowrap; }
-    .ffc-total {
-      text-align: right;
-      padding: 7px 0 3px;
-      font-size: 12px;
-    }
-    .ffc-total strong { font-family: monospace; color: #ff6b2b; }
+    .ffc-cart-price { font-family: 'Space Mono', monospace; color: #ff6b2b; font-weight: 700; white-space: nowrap; }
+    .ffc-total { text-align: right; padding: 7px 0 3px; font-size: 12px; }
+    .ffc-total strong { font-family: 'Space Mono', monospace; color: #ff6b2b; }
     .ffc-bar-wrap { margin: 7px 0; }
     .ffc-bar-track { height: 5px; background: #2a2a2a; border-radius: 99px; overflow: hidden; }
     .ffc-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
-    .ffc-bar-label { font-size: 10px; color: #888; margin-top: 3px; font-family: monospace; }
+    .ffc-bar-label { font-size: 10px; color: #888; margin-top: 3px; font-family: 'Space Mono', monospace; }
+    .ffc-remaining {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #1a1a1a;
+      border-radius: 6px;
+      border: 1px solid #2a2a2a;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .ffc-remaining span { color: #888; }
     .ffc-insult {
       background: #1a1a1a;
       border-left: 3px solid #ff6b2b;
       border-radius: 0 6px 6px 0;
-      padding: 7px 10px;
+      padding: 8px 10px;
       font-size: 12px;
       line-height: 1.5;
       color: #f0f0f0;
-      margin-top: 8px;
       font-style: italic;
+      min-height: 40px;
     }
-    .ffc-muted { color: #888; font-size: 11px; padding: 4px 0; }
-    .ffc-scanning {
-      color: #888;
-      font-family: monospace;
-      font-size: 11px;
-      text-align: center;
-      padding: 8px 0;
+    .ffc-insult.loading {
+      color: #555;
       animation: ffc-pulse 1s ease infinite;
     }
+    .ffc-muted { color: #888; font-size: 11px; padding: 4px 0; }
     @keyframes ffc-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
   `;
 
-  // Inject Google Fonts
-  const fontLink = document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=DM+Sans:wght@400;500&display=swap';
-  document.head.appendChild(fontLink);
-
-  // Inject styles
   const styleEl = document.createElement('style');
   styleEl.textContent = STYLES;
   document.head.appendChild(styleEl);
 
-  // FAB button
+  // ── Build overlay ───────────────────────────────────────────────────────────
+
   const fab = document.createElement('button');
   fab.id = 'ffc-fab';
   fab.textContent = 'FFC';
   document.body.appendChild(fab);
 
-  // Panel
   const panel = document.createElement('div');
   panel.id = 'ffc-panel';
   panel.innerHTML = `
@@ -268,55 +250,52 @@ if (!window.__ffc_injected) {
       <button id="ffc-close">✕</button>
     </div>
     <div id="ffc-body">
-      <button id="ffc-scan-btn">Scan Cart</button>
+      <button id="ffc-scan-btn">New Insult</button>
       <div id="ffc-display"></div>
     </div>
   `;
   document.body.appendChild(panel);
 
-  // ── Event Handlers ────────────────────────────────────────────────────────────
+  // ── Core scan + insult function ─────────────────────────────────────────────
 
-  fab.addEventListener('click', () => {
-    panel.classList.toggle('visible');
-  });
-
-  document.getElementById('ffc-close').addEventListener('click', () => {
-    panel.classList.remove('visible');
-  });
-
-  document.getElementById('ffc-scan-btn').addEventListener('click', () => {
+  async function runScan() {
     const display = document.getElementById('ffc-display');
-    display.innerHTML = '<div class="ffc-scanning">Scanning cart…</div>';
+    const btn     = document.getElementById('ffc-scan-btn');
+    btn.disabled  = true;
 
-    chrome.storage.local.get(['budget', 'intensity'], (data) => {
+    const result = scrapeCurrentPage();
+
+    if (!result || result.items.length === 0) {
+      display.innerHTML = '<div class="ffc-muted">No cart items found. The page may still be loading — try again in a moment.</div>';
+      btn.disabled = false;
+      return;
+    }
+
+    const { label, items } = result;
+
+    chrome.storage.local.get(['budget', 'intensity'], async (data) => {
       const budget    = parseFloat(data.budget) || 0;
       const intensity = data.intensity || 'normal';
-      const result    = scrapeCurrentPage();
+      const total     = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
+      const remaining = budget - total;
 
-      if (!result || result.items.length === 0) {
-        display.innerHTML = '<div class="ffc-muted">No items found. The cart may still be loading — try again in a moment.</div>';
-        return;
-      }
-
-      const { label, items } = result;
-      const total = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
-      const insult = budget > 0 ? generateInsult(total, budget, intensity) : null;
-
+      // Build item list HTML
       let html = `<div class="ffc-site-label">${label} Cart</div>`;
       items.forEach(item => {
-        const name = item.name.substring(0, 40);
         html += `
           <div class="ffc-cart-row">
-            <span class="ffc-cart-name">${name}…</span>
+            <span class="ffc-cart-name">${item.name.substring(0, 40)}…</span>
             <span class="ffc-cart-price">${item.price}</span>
           </div>`;
       });
 
       html += `<div class="ffc-total">Cart Total: <strong>$${total.toFixed(2)}</strong></div>`;
 
-      if (insult) {
-        const pct = Math.round((total / budget) * 100);
+      if (budget > 0) {
+        const pct      = Math.round((total / budget) * 100);
         const barColor = pct >= 100 ? '#e53e3e' : pct >= 75 ? '#dd6b20' : pct >= 40 ? '#d69e2e' : '#38a169';
+        const remColor = remaining <= 0 ? '#e53e3e' : '#38a169';
+
         html += `
           <div class="ffc-bar-wrap">
             <div class="ffc-bar-track">
@@ -324,19 +303,42 @@ if (!window.__ffc_injected) {
             </div>
             <div class="ffc-bar-label">${pct}% of $${budget.toFixed(0)} budget used</div>
           </div>
-          <div class="ffc-insult">${insult}</div>`;
+          <div class="ffc-remaining">
+            <span>Remaining if bought:</span>
+            <strong style="font-family:'Space Mono',monospace;color:${remColor};">$${remaining.toFixed(2)}</strong>
+          </div>
+          <div class="ffc-insult loading" id="ffc-insult-box">Consulting the shame engine…</div>`;
+
+        display.innerHTML = html;
+
+        // Fetch Gemini insult async
+        const insult = await fetchInsult(total, budget, intensity, label);
+        const insultEl = document.getElementById('ffc-insult-box');
+        if (insultEl) {
+          insultEl.textContent = insult;
+          insultEl.classList.remove('loading');
+        }
+
       } else {
-        html += `<div class="ffc-muted" style="margin-top:6px;">Set a budget in the extension popup to get roasted.</div>`;
+        html += `<div class="ffc-insult">Set a budget in the extension popup to get roasted.</div>`;
+        display.innerHTML = html;
       }
 
-      display.innerHTML = html;
+      btn.disabled = false;
     });
+  }
+
+  // ── Event handlers ──────────────────────────────────────────────────────────
+
+  fab.addEventListener('click', () => panel.classList.toggle('visible'));
+
+  document.getElementById('ffc-close').addEventListener('click', () => {
+    panel.classList.remove('visible');
   });
 
-  // Auto-open the panel when injected
+  document.getElementById('ffc-scan-btn').addEventListener('click', runScan);
+
+  // Auto-open and auto-scan on cart page load
   panel.classList.add('visible');
-  // Auto-scan after a short delay to let the cart page finish rendering
-  setTimeout(() => {
-    document.getElementById('ffc-scan-btn').click();
-  }, 1200);
+  setTimeout(runScan, 1400);
 }
