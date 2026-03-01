@@ -1,58 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body { width: 320px; padding: 15px; font-family: 'Segoe UI', Tahoma, Helvetica, Arial, sans-serif; background-color: #fcfcfc; color: #333; }
-    h2 { font-size: 1.1em; color: #232f3e; margin-top: 0; border-bottom: 2px solid #febd69; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    
-    button#clickMe { 
-      background: #febd69; border: 1px solid #a88734; padding: 12px; 
-      cursor: pointer; width: 100%; border-radius: 5px; font-weight: bold; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 10px;
-    }
-    button#clickMe:hover { background: #f3a847; }
-    
-    #display { 
-      margin-top: 10px; padding: 12px; border-radius: 8px; 
-      background: #ffffff; border: 1px solid #e0e0e0; font-size: 0.9em;
-    }
-
-    /* Breakdown Styles */
-    .breakdown-row { display: flex; justify-content: space-between; margin: 4px 0; color: #565959; }
-    .breakdown-total { 
-      display: flex; justify-content: space-between; margin-top: 10px; 
-      padding-top: 10px; border-top: 1px dashed #ccc; 
-      font-weight: bold; color: #B12704; font-size: 1.1em;
-    }
-
-    /* History Styles */
-    /* dont need but left for now just in case.
-    #history { margin-top: 20px; }
-    .history-header { font-weight: bold; font-size: 0.75em; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-    
-    .history-item { 
-      font-size: 0.8em; border-bottom: 1px solid #eee; padding: 8px 0; 
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .history-name { color: #007185; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
-    
-    .clear-btn { 
-      background: none; border: none; color: #007185; font-size: 0.7em; 
-      cursor: pointer; padding: 0; margin-top: 10px; text-decoration: underline;
-    }
-    */
-    .clear-btn:hover { color: #c45500; }
-  </style>
+  <title>Budget Enforcer</title>
+  <link rel="stylesheet" href="extension.css">
 </head>
 <body>
-  <h2>🛒 Purchase Tracker</h2>
-  
-  <button id="clickMe">Scan Amazon Checkout</button>
-  
-  <div id="display">
-    <p style="text-align:center; color:#999;">Ready to track your order.</p>
-  </div>
 
-  <script src="amazon_scrape.js"></script>
+  <h3>Budget Settings</h3>
+
+  <label for="budget">Budget Amount ($)</label>
+  <input type="number" id="budget" placeholder="e.g. 1000" min="0" />
+
+  <label for="timeframe">Time Frame (months)</label>
+  <input type="number" id="timeframe" placeholder="e.g. 12" min="1" />
+
+  <label for="percentage for insult">Percentage (%)</label>
+  <input type="number" id="percentage" placeholder="e.g. 10" min="0" max="100" />
+
+
+<label>Categories to Track</label>
+<div class="category-group">
+  <label class="category-box">
+    <input type="checkbox" value="food">
+    <span>Food</span>
+  </label>
+
+  <label class="category-box">
+    <input type="checkbox" value="clothes">
+    <span>Clothes</span>
+  </label>
+
+  <label class="category-box">
+    <input type="checkbox" value="electronics">
+    <span>Electronics</span>
+  </label>
+
+    <label class="category-box">
+    <input type="checkbox" value="self">
+    <span>Self-Care</span>
+  </label>
+
+  <label class="category-box">
+    <input type="checkbox" value="home">
+    <span>Home & Living</span>
+  </label>
+  
+  <label class="category-box">
+    <input type="checkbox" value="health">
+    <span>Health & Fitness</span>
+  </label>
+
+  <label class="category-box">
+    <input type="checkbox" value="misc">
+    <span>Miscellaneous</span>
+  </label>
+
+  <label class="category-box">
+    <input type="checkbox" value="entertainment">
+    <span>Entertainment</span>
+  </label>  
+</div>
+
+<label>Insult Intensity</label>
+<div class="intensity-group">
+
+  <label class="intensity-box">
+    <input type="radio" name="intensity" value="very-strict">
+    <span>Very Strict</span>
+  </label>
+
+  <label class="intensity-box">
+    <input type="radio" name="intensity" value="strict">
+    <span>Strict</span>
+  </label>
+
+  <label class="intensity-box">
+    <input type="radio" name="intensity" value="normal">
+    <span>Normal</span>
+  </label>
+
+  <label class="intensity-box">
+    <input type="radio" name="intensity" value="non-strict">
+    <span>Non-Strict</span>
+  </label>
+
+</div>
+  <button id="clickMe">Calculate</button>
+  <div id="display"></div>
+  <div id="historyList"></div>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>
