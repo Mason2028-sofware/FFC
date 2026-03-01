@@ -15,6 +15,22 @@ export const universalScraper = (configs) => {
         site = null;
     }
 
+    // Inside your scraper function after finding the checkout button:
+    checkoutBtn.addEventListener('click', () => {
+        const cartTotal = foundItems.reduce((sum, item) => {
+            return sum + (parseFloat(item.price.replace(/[^0-9.]/g, '')) || 0);
+        }, 0);
+
+        chrome.runtime.sendMessage({
+            type: 'PURCHASE_COMPLETED',
+            data: {
+                items: foundItems,
+                total: cartTotal,
+                timestamp: new Date().toLocaleString()
+            }
+        });
+    });
+
     if (!site) return { success: false };
     //selects all of the data from the data in the item container, then maps through it to get the name and price of each item, if the price element doesn't exist it skips that item, then it filters out any null items (items without prices) and returns the final array of items with their names and prices
     const containers = Array.from(document.querySelectorAll(site.itemContainer));

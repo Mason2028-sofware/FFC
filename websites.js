@@ -2,7 +2,8 @@ export const SITE_CONFIGS = {
     amazon: {
         itemContainer: '.product-description-column', //container for each item in your cart
         name: '.lineitem-title-text',//name of the item in the elements
-        prices: '.lineitem-price-text'//price of the item in the elements
+        prices: '.lineitem-price-text',//price of the item in the elements
+        checkout: '[data-testid="SPC_selectPlaceOrder"]'//the button that you click to place the order, we can use this to trigger the scraper when the user goes to place an order
     },
     nike: {
         itemContainer: '[data-automation="cart-item"]',
