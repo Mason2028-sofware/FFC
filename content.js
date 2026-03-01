@@ -21,9 +21,9 @@ if (!window.__ffc_injected) {
       prices: '.price-details'
     },
     bestBuy: {
-      itemContainer: '.cart-item',
-      name: '.sku-title a',
-      prices: '.priceView-customer-price span[aria-hidden="true"]'
+      itemContainer: '.card',
+        name: '.cart-item__title',
+        prices: '.price-block'
     }
   };
 
