@@ -2,56 +2,29 @@ import { SITE_CONFIGS } from './websites.js';
 import { universalScraper } from './scraper.js';
 
 // ── Insult Engine ──────────────────────────────────────────────────────────────
-const INSULTS = {
-  'very-strict': {
-    safe: ["You didn't buy anything. Impressive restraint. Or you're just broke.", "Zero spend. Are you okay? That's not normal."],
-    warning: ["Already at {pct}% of your budget? You have the willpower of a golden retriever in a butcher shop.", "{pct}% gone. Congrats, you're on pace to be broke."],
-    danger: ["You're at {pct}% of your budget. Your future self hates you.", "{pct}%?! Your wallet filed for emotional damages."],
-    over: ["You are {over} OVER budget. Absolutely unhinged behavior.", "Budget: defeated. You: chaos gremlin. Amount over: {over}."]
-  },
-  'strict': {
-    safe: ["Under budget. Don't get used to it.", "You're safe... for now."],
-    warning: ["At {pct}% of budget. Slow down, champ.", "You've burned {pct}%. Your savings account just winced."],
-    danger: ["Yikes. {pct}% of budget gone. Maybe log off?", "At {pct}%, you're one 'add to cart' away from disaster."],
-    over: ["Over budget by {over}. Bold strategy.", "I'm not mad, just disappointed."]
-  },
-  'normal': {
-    safe: ["You're under budget! Responsible adulting achieved.", "Under budget. Treat yourself... to NOT spending more."],
-    warning: ["At {pct}% of your budget. Keep an eye on it.", "Sitting at {pct}%. Not bad, not great."],
-    danger: ["You're at {pct}% — getting a little spicy in here.", "Oof, {pct}%. Maybe put the card down?"],
-    over: ["You went over by {over}. It happens.", "Budget busted by {over}. Time to re-evaluate life choices."]
-  },
-  'non-strict': {
-    safe: ["Under budget! You're doing amazing sweetie.", "All good! Money is just points in a game anyway."],
-    warning: ["At {pct}% — totally fine, you deserve nice things.", "{pct}% spent. Honestly not that bad."],
-    danger: ["Okay so {pct}% is a lot but... YOLO?", "{pct}%! But you know what, money comes and goes."],
-    over: ["Over by {over} but honestly? Treat yourself.", "Budget exceeded by {over}. At least you have good taste!"]
+
+async function askGemini(payload) {
+  try {
+    const response = await fetch("http://localhost:3000/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error("Backend error");
+    }
+
+    const data = await response.json();
+    return data.reply;
+
+  } catch (err) {
+    console.error("Gemini error:", err);
+    return "The shame engine is offline. Consider that a blessing.";
   }
-};
-
-// ── Helper Logic ──────────────────────────────────────────────────────────────
-
-function parsePrice(str) {
-  if (!str) return 0;
-  const match = str.replace(/,/g, '').match(/[\d.]+/);
-  return match ? parseFloat(match[0]) : 0;
 }
 
-function generateInsult(totalSpent, budget, intensity) {
-  const tier = INSULTS[intensity] || INSULTS['normal'];
-  const pct = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
-  const over = totalSpent - budget;
 
-  let pool;
-  if (totalSpent === 0) pool = tier.safe;
-  else if (pct >= 100)  pool = tier.over;
-  else if (pct >= 75)   pool = tier.danger;
-  else if (pct >= 40)   pool = tier.warning;
-  else                  pool = tier.safe;
-
-  const template = pool[Math.floor(Math.random() * pool.length)];
-  return template.replace('{pct}', pct).replace('{over}', '$' + Math.abs(over).toFixed(2));
-}
 
 // ── Core Dashboard Logic ──────────────────────────────────────────────────────
 
@@ -170,6 +143,12 @@ document.getElementById('clickMe').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   display.innerHTML = '<div style="text-align:center; padding:10px;">Scrutinizing your choices...</div>';
 
+  function parsePrice(str) {
+  if (!str) return 0;
+  const match = str.replace(/,/g, '').match(/[\d.]+/);
+  return match ? parseFloat(match[0]) : 0;
+}
+
   try {
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id, allFrames: true },
@@ -182,11 +161,23 @@ document.getElementById('clickMe').addEventListener('click', async () => {
     if (found) {
       const { items, site } = found.result;
       const total = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
-      const remainingIfBought = budget - total;
-      const insult = generateInsult(total, budget, intensity);
+      //const insult = budget > 0 ? generateInsult(total, budget, intensity) : null;
 
-      let html = `<div style="font-weight:bold; margin-bottom:10px; color:#4a5568;">${site} Cart Items:</div>`;
-      
+      let insult = null;
+
+    if (budget > 0) {
+      const pct = Math.round((total / budget) * 100);
+
+      insult = await askGemini({
+        total,
+        budget,
+        percentUsed: pct,
+        intensity,
+        site
+      });
+    }
+
+      let html = `<div class="site-label">${site} Cart</div>`;
       items.forEach(item => {
         html += `
           <div style="display:flex; justify-content:space-between; font-size:0.85em; margin-bottom:3px;">
