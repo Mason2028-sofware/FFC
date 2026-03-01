@@ -83,25 +83,29 @@ const loadSettings = () => {
   });
 };
 
-// ── History UI ─────────────────────────────────────────────────────────────────
+// ── Collapsible Settings ───────────────────────────────────────────────────────
 
-const updateHistoryUI = () => {
-  chrome.storage.local.get({ history: [] }, (data) => {
-    const list = document.getElementById('historyList');
-    if (!list) return;
-    list.innerHTML = data.history.length
-      ? '<div style="font-size:0.75em;font-weight:bold;color:#888;margin:12px 0 4px;">Recent Scans</div>'
-      : '<p style="font-size:0.8em; color:#888;">No scan history yet.</p>';
+const initSettingsPanel = () => {
+  const toggle  = document.getElementById('settingsToggle');
+  const content = document.getElementById('settingsContent');
+  const chevron = document.getElementById('settingsChevron');
 
-    [...data.history].reverse().slice(0, 5).forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.innerHTML = `
-        <span class="history-name">${item.site || 'Unknown'}</span>
-        <span class="price-badge">$${item.total.toFixed(2)}</span>
-      `;
-      list.appendChild(div);
-    });
+  // Open on first run (no saved settings), collapsed otherwise
+  chrome.storage.local.get(['hasVisited'], (data) => {
+    const isFirstRun = !data.hasVisited;
+    if (isFirstRun) {
+      content.classList.add('open');
+      chevron.textContent = '▲';
+      chrome.storage.local.set({ hasVisited: true });
+    } else {
+      content.classList.remove('open');
+      chevron.textContent = '▼';
+    }
+  });
+
+  toggle.addEventListener('click', () => {
+    const isOpen = content.classList.toggle('open');
+    chevron.textContent = isOpen ? '▲' : '▼';
   });
 };
 
@@ -109,7 +113,7 @@ const updateHistoryUI = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
-  updateHistoryUI();
+  initSettingsPanel();
   document.querySelectorAll('input').forEach(el => el.addEventListener('change', saveSettings));
 });
 
@@ -139,13 +143,6 @@ document.getElementById('clickMe').addEventListener('click', async () => {
       const total = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
       const insult = budget > 0 ? generateInsult(total, budget, intensity) : null;
 
-      // Save to history
-      chrome.storage.local.get({ history: [] }, (res) => {
-        res.history.push({ site, total, items, timestamp: Date.now() });
-        chrome.storage.local.set({ history: res.history }, updateHistoryUI);
-      });
-
-      // Build output HTML
       let html = `<div class="site-label">${site} Cart</div>`;
       items.forEach(item => {
         const name = item.name ? item.name.substring(0, 45) : 'Item';
