@@ -18,13 +18,18 @@ export const universalScraper = (configs) => {
     if (!site) return { success: false };
     //selects all of the data from the data in the item container, then maps through it to get the name and price of each item, if the price element doesn't exist it skips that item, then it filters out any null items (items without prices) and returns the final array of items with their names and prices
     const containers = Array.from(document.querySelectorAll(site.itemContainer));
-    
+    console.log(containers);
+
     const foundItems = containers.map(container => {
         const nameEl = container.querySelector(site.name);
         const priceEl = container.querySelector(site.prices);
         
+        //console.log(nameEl.innerText);
+        console.log(priceEl);
+
         if (priceEl) {
             // Ensure name is a string, even if the element is missing
+
             const rawName = nameEl ? nameEl.innerText : "Unknown Product";
             const cleanName = rawName.trim().replace(/\s+/g, ' ');
             //checks if the price text contains a valid price format, if it does it uses that, otherwise it defaults to "N/A"`
