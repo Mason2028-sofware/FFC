@@ -48,9 +48,9 @@ if (!window.__ffc_injected) {
       prices: '.price-details'
     },
     bestbuy: {
-      itemContainer: '.fluid-large-view__info-column',
-      name: '.item-title',
-      prices: '.pricing-price__regular-price'
+      itemContainer: '.card',
+        name: '.cart-item__title',
+        prices: '.price-block'
     }
   };
 
