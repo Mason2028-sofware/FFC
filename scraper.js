@@ -14,7 +14,7 @@ export const universalScraper = (configs) => {
         site = configs.ebay;
         siteLabel = 'eBay';
     } else if (host.includes('bestbuy')) {
-        site = configs.bestBuy;  // matches websites.js key
+        site = configs.bestBuy;
         siteLabel = 'Best Buy';
     }
 

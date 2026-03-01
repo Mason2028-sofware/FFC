@@ -20,7 +20,6 @@ body {
   width: 280px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────────── */
 
 #popup-header {
   display: flex;
@@ -45,7 +44,6 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* ── Body ───────────────────────────────────────────────────────────────────── */
 
 #popup-body {
   padding: 12px 14px 16px;
@@ -77,7 +75,6 @@ input[type="number"] {
 input[type="number"]:focus { border-color: var(--orange); }
 input[type="number"]::placeholder { color: #444; }
 
-/* ── Category Grid ──────────────────────────────────────────────────────────── */
 
 .category-group {
   display: grid;
@@ -109,7 +106,6 @@ input[type="number"]::placeholder { color: #444; }
   font-weight: 600;
 }
 
-/* ── Intensity Grid ─────────────────────────────────────────────────────────── */
 
 .intensity-group {
   display: grid;
@@ -140,7 +136,6 @@ input[type="number"]::placeholder { color: #444; }
   font-weight: 600;
 }
 
-/* ── Save indicator ─────────────────────────────────────────────────────────── */
 
 #save-indicator {
   margin-top: 14px;

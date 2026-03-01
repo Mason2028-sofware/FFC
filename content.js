@@ -1,8 +1,6 @@
-// Guard against double-injection on SPA re-navigations
 if (!window.__ffc_injected) {
   window.__ffc_injected = true;
 
-  // ── Site configs ────────────────────────────────────────────────────────────
 
   const SITE_CONFIGS = {
     amazon: {
@@ -27,7 +25,6 @@ if (!window.__ffc_injected) {
     }
   };
 
-  // ── Helpers ─────────────────────────────────────────────────────────────────
 
   function parsePrice(str) {
     if (!str) return 0;
@@ -81,7 +78,6 @@ if (!window.__ffc_injected) {
     }
   }
 
-  // ── Styles ──────────────────────────────────────────────────────────────────
 
   const STYLES = `
     @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=DM+Sans:wght@400;500&display=swap');
@@ -235,7 +231,6 @@ if (!window.__ffc_injected) {
   styleEl.textContent = STYLES;
   document.head.appendChild(styleEl);
 
-  // ── Build overlay ───────────────────────────────────────────────────────────
 
   const fab = document.createElement('button');
   fab.id = 'ffc-fab';
@@ -256,7 +251,6 @@ if (!window.__ffc_injected) {
   `;
   document.body.appendChild(panel);
 
-  // ── Core scan + insult function ─────────────────────────────────────────────
 
   async function runScan() {
     const display = document.getElementById('ffc-display');
@@ -279,7 +273,6 @@ if (!window.__ffc_injected) {
       const total     = items.reduce((sum, item) => sum + parsePrice(item.price), 0);
       const remaining = budget - total;
 
-      // Build item list HTML
       let html = `<div class="ffc-site-label">${label} Cart</div>`;
       items.forEach(item => {
         html += `
@@ -311,7 +304,6 @@ if (!window.__ffc_injected) {
 
         display.innerHTML = html;
 
-        // Fetch Gemini insult async
         const insult = await fetchInsult(total, budget, intensity, label);
         const insultEl = document.getElementById('ffc-insult-box');
         if (insultEl) {
@@ -328,7 +320,6 @@ if (!window.__ffc_injected) {
     });
   }
 
-  // ── Event handlers ──────────────────────────────────────────────────────────
 
   fab.addEventListener('click', () => panel.classList.toggle('visible'));
 
@@ -338,7 +329,6 @@ if (!window.__ffc_injected) {
 
   document.getElementById('ffc-scan-btn').addEventListener('click', runScan);
 
-  // Auto-open and auto-scan on cart page load
   panel.classList.add('visible');
   setTimeout(runScan, 1400);
 }

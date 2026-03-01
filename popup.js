@@ -1,4 +1,4 @@
-// popup.js — settings only, no scanning or insults
+
 
 const saveSettings = () => {
   const budget     = document.getElementById('budget').value;
