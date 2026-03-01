@@ -105,6 +105,30 @@ const loadSettings = () => {
   });
 };
 
+// ── Collapsible Settings ───────────────────────────────────────────────────────
+
+const initSettingsPanel = () => {
+  const toggle  = document.getElementById('settingsToggle');
+  const content = document.getElementById('settingsContent');
+  const chevron = document.getElementById('settingsChevron');
+
+  // Open on first run (no saved settings), collapsed otherwise
+  chrome.storage.local.get(['hasVisited'], (data) => {
+    const isFirstRun = !data.hasVisited;
+    if (isFirstRun) {
+      content.classList.add('open');
+      chevron.textContent = '▲';
+      chrome.storage.local.set({ hasVisited: true });
+    } else {
+      content.classList.remove('open');
+      chevron.textContent = '▼';
+    }
+  });
+
+  toggle.addEventListener('click', () => {
+    const isOpen = content.classList.toggle('open');
+    chevron.textContent = isOpen ? '▲' : '▼';
+
 const updateHistoryUI = () => {
   chrome.storage.local.get({ history: [] }, (data) => {
     const list = document.getElementById('historyList');
@@ -127,7 +151,7 @@ const updateHistoryUI = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
-  updateHistoryUI();
+  initSettingsPanel();
   
   // Listen for manual budget changes
   document.querySelectorAll('input').forEach(el => {
