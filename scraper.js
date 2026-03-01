@@ -47,8 +47,6 @@ export const universalScraper = (configs) => {
 
             const rawName = nameEl ? nameEl.innerText : "Unknown Product";
             const cleanName = rawName.trim().replace(/\s+/g, ' ');
-            
-            const priceMatch = priceEl.innerText.match(/\$\d+\.\d{2}/);
             const finalPrice = priceMatch ? priceMatch[0] : "N/A";
 
             return {
