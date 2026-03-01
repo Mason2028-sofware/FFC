@@ -1,22 +1,22 @@
 export const SITE_CONFIGS = {
     amazon: {
-        itemContainer: '.product-description-column', 
-        name: '.lineitem-title-text',
-        prices: '.lineitem-price-text'
+        itemContainer: '.product-description-column', //container for each item in your cart
+        name: '.lineitem-title-text',//name of the item in the elements
+        prices: '.lineitem-price-text'//price of the item in the elements
     },
     nike: {
         itemContainer: '[data-automation="cart-item"]',
         name: '[data-automation="cart-item-product-name"]',
         prices: '.formatted-price'
     },
-    walmart: {
-        itemContainer: '[data-testid="product-tile-container"]',
-        name: '[data-testid="productName"]',
-        prices: '[class="w_iUH7"]'
+    ebay: {
+        itemContainer: '.evo-item-detail',
+        name: 'a[data-test-id="cart-item-link"]',
+        prices: '.price-details'
     },
     bestBuy: {
         itemContainer: '.card',
-        name: '.cart-item_title',
+        name: '.cart-item__title',
         prices: '.price-block'
     }
 };
