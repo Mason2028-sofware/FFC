@@ -8,5 +8,10 @@ export const SITE_CONFIGS = {
         itemContainer: '[data-automation="cart-item"]',
         name: '[data-automation="cart-item-product-name"]',
         prices: '.formatted-price'
+    },
+    ebay: {
+        itemContainer: '.evo-item-detail',
+        name: 'a[data-test-id="cart-item-link"]',
+        prices: '.price-details'
     }
 };

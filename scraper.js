@@ -1,17 +1,33 @@
 export const universalScraper = (configs) => {
     const host = window.location.hostname;
-    const site = host.includes('amazon') ? configs.amazon : (host.includes('nike') ? configs.nike : null);
+    
+    let site;
+
+    if (host.includes('amazon')) {
+        site = configs.amazon;
+    } else if (host.includes('nike')) {
+        site = configs.nike;
+    } else if (host.includes('ebay')) {
+        site = configs.ebay;
+    } else {
+        site = null;
+    }
 
     if (!site) return { success: false };
 
     const containers = Array.from(document.querySelectorAll(site.itemContainer));
-    
+    console.log(containers);
+
     const foundItems = containers.map(container => {
         const nameEl = container.querySelector(site.name);
         const priceEl = container.querySelector(site.prices);
         
+        //console.log(nameEl.innerText);
+        console.log(priceEl);
+
         if (priceEl) {
             // Ensure name is a string, even if the element is missing
+
             const rawName = nameEl ? nameEl.innerText : "Unknown Product";
             const cleanName = rawName.trim().replace(/\s+/g, ' ');
             
