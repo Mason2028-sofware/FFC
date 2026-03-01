@@ -128,7 +128,8 @@ const initSettingsPanel = () => {
   toggle.addEventListener('click', () => {
     const isOpen = content.classList.toggle('open');
     chevron.textContent = isOpen ? '▲' : '▼';
-
+  });
+};
 const updateHistoryUI = () => {
   chrome.storage.local.get({ history: [] }, (data) => {
     const list = document.getElementById('historyList');
