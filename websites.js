@@ -13,5 +13,10 @@ export const SITE_CONFIGS = {
         itemContainer: '.evo-item-detail',
         name: 'a[data-test-id="cart-item-link"]',
         prices: '.price-details'
+    },
+    walmart: {
+        itemContainer: '.flex flex-column column2',
+        name: 'a[href*="2353822796"]',
+        prices: '.f2'
     }
 };
