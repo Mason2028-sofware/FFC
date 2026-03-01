@@ -9,14 +9,31 @@ export const universalScraper = (configs) => {
         site = configs.nike;
     } else if (host.includes('ebay')) {
         site = configs.ebay;
-    } else {
-        site = null;
+    } else if (host.includes('bestbuy')) {
+        site = configs.bestBuy;
     }
-
     if (!site) return { success: false };
 
     const containers = Array.from(document.querySelectorAll(site.itemContainer));
     console.log(containers);
+
+    const checkoutBtn = document.querySelector('[data-testid="SPC_selectPlaceOrder"]');
+
+    if (checkoutBtn && !checkoutBtn.dataset.listener) {
+        checkoutBtn.dataset.listener = "true";
+        checkoutBtn.addEventListener('click', () => {
+            const total = foundItems.reduce((sum, item) => sum + parsePrice(item.price), 0);
+            
+            chrome.runtime.sendMessage({
+                type: 'PURCHASE_COMPLETED',
+                data: { 
+                    total: total, 
+                    site: 'Amazon',
+                    timestamp: Date.now() 
+                }
+            });
+        });
+    }
 
     const foundItems = containers.map(container => {
         const nameEl = container.querySelector(site.name);
@@ -44,7 +61,7 @@ export const universalScraper = (configs) => {
 
     return {
         success: foundItems.length > 0,
-        site: host.includes('nike') ? 'Nike' : 'Amazon',
+        site: host.includes('nike') ? 'Nike' : host.includes('bestbuy') ? 'Best Buy' : host.includes('amazon') ? 'Amazon' : 'E-Bay',
         items: foundItems
     };
 };

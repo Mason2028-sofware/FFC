@@ -4,19 +4,14 @@
   "version": "1",
   "description": "A Chrome extension to track your spending and insults you about it.",
   "permissions": ["activeTab", "scripting", "storage", "webNavigation"],
-  "host_permissions": [
-    "https://www.amazon.com/*",
-    "https://www.nike.com/*",
-    "https://cart.ebay.com/*",
-    "https://www.bestbuy.com/*"
-  ],
+  "host_permissions": ["https://www.amazon.com/*", "http://localhost:3000/*", "https://www.nike.com/*", "https://www.walmart.com/*", "https://www.ebay.com/*"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
     "default_popup": "ffc.html"
   },
-  "web_accessible_resources": [
+   "web_accessible_resources": [
     {
       "resources": ["content.js"],
       "matches": [
